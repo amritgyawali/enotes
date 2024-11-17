@@ -92,6 +92,8 @@ public class CategoryServiceImpl implements CategoryService {
         return null;
     }
 
+//just check
+
     @Override
     public Boolean deleteCategory(Integer id) {
         Optional<Category> findByCategory = categoryRepo.findById(id);
