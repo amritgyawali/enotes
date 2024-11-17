@@ -3,6 +3,7 @@ package com.amrit.controller;
 import com.amrit.dto.CategoryDto;
 import com.amrit.dto.CategoryResponse;
 import com.amrit.entity.Category;
+import com.amrit.exception.ResourceNotFoundException;
 import com.amrit.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,13 +55,28 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id){
+    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id) throws Exception{
+//        try{
+//            CategoryDto categoryDto = categoryService.getCategoryById(id);
+//            if (ObjectUtils.isEmpty(categoryDto))
+//            {
+//                return new ResponseEntity<>("Category not found with id =  "+id,HttpStatus.NOT_FOUND);
+//            }
+//            return new ResponseEntity<>(categoryDto,HttpStatus.OK);
+//        }
+//        catch (ResourceNotFoundException d){
+//            return new ResponseEntity<>(d.getMessage(),HttpStatus.NOT_FOUND);
+//        }catch (Exception e){
+//            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+
         CategoryDto categoryDto = categoryService.getCategoryById(id);
         if (ObjectUtils.isEmpty(categoryDto))
         {
-            return new ResponseEntity<>("Category not found with id =  "+id,HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Internal Server Error"+id,HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(categoryDto,HttpStatus.OK);
+
     }
 
     @DeleteMapping("/{id}")

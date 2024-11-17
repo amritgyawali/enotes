@@ -3,8 +3,10 @@ package com.amrit.service.impl;
 import com.amrit.dto.CategoryDto;
 import com.amrit.dto.CategoryResponse;
 import com.amrit.entity.Category;
+import com.amrit.exception.ResourceNotFoundException;
 import com.amrit.repository.CategoryRepository;
 import com.amrit.service.CategoryService;
+import org.hibernate.sql.exec.ExecutionException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -79,10 +81,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto getCategoryById(Integer id) {
-        Optional<Category> findByCategory = categoryRepo.findByIdAndIsDeletedFalse(id);
-        if (findByCategory.isPresent()){
-            Category category = findByCategory.get();
+    public CategoryDto getCategoryById(Integer id) throws ResourceNotFoundException {
+
+        Category category = categoryRepo.findByIdAndIsDeletedFalse(id).orElseThrow(()->new ResourceNotFoundException("Category not found id="+id));
+
+        if (!ObjectUtils.isEmpty(category)){
+            category.getName().toUpperCase();
             return mapper.map(category,CategoryDto.class);
         }
         return null;
