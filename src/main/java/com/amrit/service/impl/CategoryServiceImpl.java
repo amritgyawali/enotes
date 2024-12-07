@@ -6,6 +6,7 @@ import com.amrit.entity.Category;
 import com.amrit.exception.ResourceNotFoundException;
 import com.amrit.repository.CategoryRepository;
 import com.amrit.service.CategoryService;
+import com.amrit.util.Validation;
 import org.hibernate.sql.exec.ExecutionException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +26,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private ModelMapper mapper;
 
+    @Autowired
+    private Validation validation;
+
     @Override
     public Boolean saveCategory(CategoryDto categoryDto) {
 
-//        Category category = new Category();
-//        category.setName(categoryDto.getName());
-//        category.setDescription(categoryDto.getDescription());
-//        category.setIsActive(categoryDto.getIsActive());
-
+        //Validation checking
+        validation.categoryValidation(categoryDto);
         Category category = mapper.map(categoryDto, Category.class);
 
         if (ObjectUtils.isEmpty(category.getId())){

@@ -1,5 +1,6 @@
 package com.amrit.exception;
 
+import com.amrit.util.Validation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -25,5 +26,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleResourceNotFoundException(Exception e)
     {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleValidationException(ValidationException e)
+    {
+        return new ResponseEntity<>(e.getErrors(), HttpStatus.BAD_REQUEST);
     }
 }
