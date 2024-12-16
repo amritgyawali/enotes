@@ -8,8 +8,6 @@ import org.springframework.util.ObjectUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static java.lang.Boolean.FALSE;
-
 @Component
 public class Validation {
 
@@ -62,11 +60,6 @@ public class Validation {
             //validation isActive
             if(ObjectUtils.isEmpty(categoryDto.getIsActive())){
                 error.put("isActive","isActive field is empty or null");
-            }else {
-                if (categoryDto.getIsActive() !=Boolean.TRUE.booleanValue()
-                        && categoryDto.getIsActive() != Boolean.FALSE.booleanValue()){
-                    error.put("isActive","invalid value of isActive field");
-                }
             }
         }
         if (!error.isEmpty()){
