@@ -3,6 +3,7 @@ package com.amrit.service.impl;
 import com.amrit.dto.CategoryDto;
 import com.amrit.dto.CategoryResponse;
 import com.amrit.entity.Category;
+import com.amrit.exception.ExistDataException;
 import com.amrit.exception.ResourceNotFoundException;
 import com.amrit.repository.CategoryRepository;
 import com.amrit.service.CategoryService;
@@ -34,11 +35,18 @@ public class CategoryServiceImpl implements CategoryService {
 
         //Validation checking
         validation.categoryValidation(categoryDto);
+
+        //check category exist or not
+        Boolean exist = categoryRepo.existsByName(categoryDto.getName().trim());
+        if (exist){
+            //throw error
+            throw new ExistDataException("Category already exist");
+        }
         Category category = mapper.map(categoryDto, Category.class);
 
         if (ObjectUtils.isEmpty(category.getId())){
             category.setIsDeleted(false);
-            category.setCreatedBy(1);
+//            category.setCreatedBy(1);
             category.setCreatedOn(new Date());
         }
         else{
