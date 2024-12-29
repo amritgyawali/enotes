@@ -1,13 +1,14 @@
 package com.amrit.service;
 
-import com.amrit.dto.NotesDto;
-import com.amrit.exception.ResourceNotFoundException;
-
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import com.amrit.dto.NotesDto;
 
 public interface NotesService {
 
-    public Boolean saveNotes(NotesDto notesDto) throws ResourceNotFoundException;
+    public Boolean saveNotes(String notes,MultipartFile file) throws Exception;
 
     public List<NotesDto> getAllNotes();
 
