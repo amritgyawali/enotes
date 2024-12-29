@@ -1,7 +1,6 @@
 package com.amrit.service.impl;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amrit.dto.NotesDto;
@@ -81,7 +81,7 @@ public class NotesServiceImpl implements NotesService {
             String originalFilename = file.getOriginalFilename();
             String extension = FilenameUtils.getExtension(originalFilename);
 
-            List<String> extensionAllow = Arrays.asList("pdf", "xlsx", "jpg", "png");
+            List<String> extensionAllow = Arrays.asList("pdf", "xlsx", "jpg", "png", "docx");
             if (!extensionAllow.contains(extension)) {
                 throw new IllegalArgumentException("invalid file format ! Upload only .pdf , .xlsx,.jpg");
             }
@@ -133,6 +133,19 @@ public class NotesServiceImpl implements NotesService {
     @Override
     public List<NotesDto> getAllNotes() {
         return notesRepo.findAll().stream().map(note -> mapper.map(note, NotesDto.class)).toList();
+    }
+
+    @Override
+    public byte[] downloadFile(FileDetails fileDetails) throws ResourceNotFoundException, IOException {
+        InputStream io= new FileInputStream(fileDetails.getPath());
+        return StreamUtils.copyToByteArray(io);
+    }
+
+    @Override
+    public FileDetails getFileDetails(Integer id) throws ResourceNotFoundException {
+        FileDetails fileDetails = fileRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("file is not available"));
+
+        return fileDetails;
     }
 
 }

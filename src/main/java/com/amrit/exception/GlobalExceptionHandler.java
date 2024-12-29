@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.FileNotFoundException;
+
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -37,6 +39,11 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(ExistDataException.class)
 	public ResponseEntity<?> handleExistDataException(ExistDataException e) {
 		return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+	}
+
+	@ExceptionHandler(FileNotFoundException.class)
+	public ResponseEntity<?> handleFileNotFoundException(FileNotFoundException e) {
+		return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
 	}
 
 }
