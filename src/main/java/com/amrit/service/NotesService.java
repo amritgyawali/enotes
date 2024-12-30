@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
+import com.amrit.dto.NotesResponse;
 import com.amrit.entity.FileDetails;
 import com.amrit.exception.ResourceNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,4 +20,6 @@ public interface NotesService {
     byte[] downloadFile(FileDetails fileDetails) throws ResourceNotFoundException, IOException;
 
     FileDetails getFileDetails(Integer id) throws ResourceNotFoundException;
+
+    NotesResponse getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize);
 }
