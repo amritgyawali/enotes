@@ -1,15 +1,16 @@
 package com.amrit.service.impl;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.amrit.dto.NotesDto;
+import com.amrit.dto.NotesDto.CategoryDto;
 import com.amrit.dto.NotesResponse;
+import com.amrit.entity.FileDetails;
+import com.amrit.entity.Notes;
+import com.amrit.exception.ResourceNotFoundException;
+import com.amrit.repository.CategoryRepository;
+import com.amrit.repository.FileRepository;
+import com.amrit.repository.NotesRepository;
+import com.amrit.service.NotesService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,17 +23,15 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amrit.dto.NotesDto;
-import com.amrit.dto.NotesDto.CategoryDto;
-import com.amrit.entity.Category;
-import com.amrit.entity.FileDetails;
-import com.amrit.entity.Notes;
-import com.amrit.exception.ResourceNotFoundException;
-import com.amrit.repository.CategoryRepository;
-import com.amrit.repository.FileRepository;
-import com.amrit.repository.NotesRepository;
-import com.amrit.service.NotesService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class NotesServiceImpl implements NotesService {
@@ -58,17 +57,26 @@ public class NotesServiceImpl implements NotesService {
         ObjectMapper ob = new ObjectMapper();
         NotesDto notesDto = ob.readValue(notes, NotesDto.class);
 
+        // update when id is given
+        if(!ObjectUtils.isEmpty(notesDto.getId())){
+            updateNotes(notesDto,file);
+        }
+
+
         // category validation
         checkCategoryExist(notesDto.getCategory());
 
         Notes notesMap = mapper.map(notesDto, Notes.class);
 
-        FileDetails fileDtls = saveFileDetails(file);
+        FileDetails fileDetails =  saveFileDetails(file);
 
-        if (!ObjectUtils.isEmpty(fileDtls)) {
-            notesMap.setFileDetails(fileDtls);
+        if (!ObjectUtils.isEmpty(fileDetails)) {
+            notesMap.setFileDetails(fileDetails);
         } else {
-            notesMap.setFileDetails(null);
+            if(ObjectUtils.isEmpty(notesDto.getId())){
+                notesMap.setFileDetails(null);
+            }
+
         }
 
         Notes saveNotes = notesRepo.save(notesMap);
@@ -76,6 +84,14 @@ public class NotesServiceImpl implements NotesService {
             return true;
         }
         return false;
+    }
+
+    private void updateNotes(NotesDto notesDto, MultipartFile file) throws Exception {
+        Notes existNotes = notesRepo.findById(notesDto.getId()).orElseThrow(() -> new ResourceNotFoundException("Invalid notes id"));
+        // if user not choose file at update time
+        if (ObjectUtils.isEmpty(file)) {
+            notesDto.setFileDetails(mapper.map(existNotes.getFileDetails(), NotesDto.FilesDto.class));
+        }
     }
 
     private FileDetails saveFileDetails(MultipartFile file) throws IOException {
@@ -91,7 +107,7 @@ public class NotesServiceImpl implements NotesService {
             }
 
             String rndString = UUID.randomUUID().toString();
-            String uploadfileName = rndString + "." + extension; // sdfsafbhkljsf.pdf
+            String uploadfileName = rndString + "." + extension;
 
             File saveFile = new File(uploadpath);
             if (!saveFile.exists()) {
@@ -109,8 +125,7 @@ public class NotesServiceImpl implements NotesService {
                 fileDtls.setUploadFileName(uploadfileName);
                 fileDtls.setFileSize(file.getSize());
                 fileDtls.setPath(storePath);
-                FileDetails saveFileDtls = fileRepo.save(fileDtls);
-                return saveFileDtls;
+                return fileRepo.save(fileDtls);
             }
         }
 
