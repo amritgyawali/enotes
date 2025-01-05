@@ -62,15 +62,10 @@ public class NotesController {
     }
 
     @GetMapping("/user-notes")
-    public ResponseEntity<?> getAllNotesByUser(
-            @RequestParam(name = "pageNo", defaultValue = "0") Integer pageNo,
-            @RequestParam(name = "pageSize",defaultValue = "10") Integer pageSize
-    ) {
+    public ResponseEntity<?> getAllNotesByUser(@RequestParam(name = "pageNo", defaultValue = "0") Integer pageNo,
+                                               @RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize) {
         Integer userId = 2;
-        NotesResponse notes = notesService.getAllNotesByUser(userId,pageNo,pageSize);
-        if (CollectionUtils.isEmpty((Collection<?>) notes)) {
-            return ResponseEntity.noContent().build();
-        }
+        NotesResponse notes = notesService.getAllNotesByUser(userId, pageNo, pageSize);
         return CommonUtil.createBuildResponse(notes, HttpStatus.OK);
     }
 
@@ -129,5 +124,11 @@ public class NotesController {
             return ResponseEntity.noContent().build();
         }
         return CommonUtil.createBuildResponse(userFavoriteNotes, HttpStatus.OK);
+    }
+
+    @GetMapping("/copy-note/{noteId}")
+    public ResponseEntity<?> copyNote(@PathVariable Integer noteId) throws Exception {
+        notesService.copyNote(noteId);
+        return CommonUtil.createBuildResponseMessage("Notes copied successfully", HttpStatus.CREATED);
     }
 }
