@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
+import com.amrit.dto.FavouriteNoteDto;
 import com.amrit.dto.NotesResponse;
 import com.amrit.entity.FileDetails;
 import com.amrit.entity.Notes;
@@ -106,5 +107,27 @@ public class NotesController {
         int userId = 2;
         notesService.deleteRecycleBin(userId);
         return CommonUtil.createBuildResponseMessage("deleted all recyclebin successfully",HttpStatus.OK);
+    }
+
+    @GetMapping("/fav/{noteId}")
+    public ResponseEntity<?> favoriteNote(@PathVariable Integer noteId) throws Exception {
+        notesService.favoriteNotes(noteId);
+        return CommonUtil.createBuildResponseMessage("Notes added Favorite", HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/un-fav/{favNotId}")
+    public ResponseEntity<?> unFavoriteNote(@PathVariable Integer favNotId) throws Exception {
+        notesService.unFavoriteNotes(favNotId);
+        return CommonUtil.createBuildResponseMessage("Remove Favorite", HttpStatus.OK);
+    }
+
+    @GetMapping("/fav-note")
+    public ResponseEntity<?> getUserfavoriteNote() throws Exception {
+
+        List<FavouriteNoteDto> userFavoriteNotes = notesService.getUserFavoriteNotes();
+        if (CollectionUtils.isEmpty(userFavoriteNotes)) {
+            return ResponseEntity.noContent().build();
+        }
+        return CommonUtil.createBuildResponse(userFavoriteNotes, HttpStatus.OK);
     }
 }

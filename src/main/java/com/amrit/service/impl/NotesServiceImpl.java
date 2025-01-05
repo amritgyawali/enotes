@@ -1,13 +1,16 @@
 package com.amrit.service.impl;
 
+import com.amrit.dto.FavouriteNoteDto;
 import com.amrit.dto.NotesDto;
 import com.amrit.dto.NotesDto.CategoryDto;
 import com.amrit.dto.NotesResponse;
+import com.amrit.entity.FavouriteNote;
 import com.amrit.entity.FileDetails;
 import com.amrit.entity.Notes;
 import com.amrit.entity.Notes.*;
 import com.amrit.exception.ResourceNotFoundException;
 import com.amrit.repository.CategoryRepository;
+import com.amrit.repository.FavouriteNotesRepository;
 import com.amrit.repository.FileRepository;
 import com.amrit.repository.NotesRepository;
 import com.amrit.service.NotesService;
@@ -42,6 +45,9 @@ public class NotesServiceImpl implements NotesService {
 
     @Autowired
     private NotesRepository notesRepo;
+
+    @Autowired
+    private FavouriteNotesRepository favouriteNoteRepo;
 
     @Autowired
     private ModelMapper mapper;
@@ -235,6 +241,29 @@ public class NotesServiceImpl implements NotesService {
         else{
             throw new IllegalArgumentException("recyclebin is empty");
         }
+    }
+
+    @Override
+    public void favoriteNotes(Integer noteId) throws Exception {
+        int userId = 2;
+        Notes notes = notesRepo.findById(noteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes Not found & Id invalid"));
+        FavouriteNote favouriteNote = FavouriteNote.builder().note(notes).userId(userId).build();
+        favouriteNoteRepo.save(favouriteNote);
+    }
+
+    @Override
+    public void unFavoriteNotes(Integer favouriteNoteId) throws Exception {
+        FavouriteNote favNote = favouriteNoteRepo.findById(favouriteNoteId)
+                .orElseThrow(() -> new ResourceNotFoundException("Favourite Note Not found & Id invalid"));
+        favouriteNoteRepo.delete(favNote);
+    }
+
+    @Override
+    public List<FavouriteNoteDto> getUserFavoriteNotes() throws Exception {
+        int userId = 2;
+        List<FavouriteNote> favouriteNotes = favouriteNoteRepo.findByUserId(userId);
+        return favouriteNotes.stream().map(fn -> mapper.map(fn, FavouriteNoteDto.class)).toList();
     }
 
 }
