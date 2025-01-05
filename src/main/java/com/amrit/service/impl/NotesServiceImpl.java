@@ -16,6 +16,7 @@ import com.amrit.repository.NotesRepository;
 import com.amrit.service.NotesService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
+import org.aspectj.weaver.ast.Not;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -182,19 +183,17 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
-    public NotesResponse getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize) {
-        Pageable pageable=PageRequest.of(pageNo,pageSize);
-        Page<Notes> pageNotes = notesRepo.findByCreatedByAndIsDeletedFalse(userId,pageable);
+    public NotesResponse getAllNotesByUser(Integer userId, Integer pageNo, Integer pageSize) {
+        // 10 = 5,5 = 2 pages
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Notes> pageNotes = notesRepo.findByCreatedByAndIsDeletedFalse(userId, pageable);
+
         List<NotesDto> notesDto = pageNotes.get().map(n -> mapper.map(n, NotesDto.class)).toList();
-        NotesResponse notes = NotesResponse.builder()
-                .notes(notesDto)
-                .pageNo(pageNotes.getNumber())
-                .pageSize(pageNotes.getSize())
-                .totalElements(pageNotes.getTotalElements())
-                .totalPages(pageNotes.getTotalPages())
-                .isFirst(pageNotes.isFirst())
-                .isLast(pageNotes.isLast())
-                .build();
+
+        NotesResponse notes = NotesResponse.builder().notes(notesDto).pageNo(pageNotes.getNumber())
+                .pageSize(pageNotes.getSize()).totalElements(pageNotes.getTotalElements())
+                .totalPages(pageNotes.getTotalPages()).isFirst(pageNotes.isFirst()).isLast(pageNotes.isLast()).build();
+
         return notes;
     }
 
@@ -264,6 +263,18 @@ public class NotesServiceImpl implements NotesService {
         int userId = 2;
         List<FavouriteNote> favouriteNotes = favouriteNoteRepo.findByUserId(userId);
         return favouriteNotes.stream().map(fn -> mapper.map(fn, FavouriteNoteDto.class)).toList();
+    }
+
+    @Override
+    public void copyNote(Integer noteId) throws ResourceNotFoundException {
+        Notes notes = notesRepo.findById(noteId).orElseThrow(()->new ResourceNotFoundException("note id not found"));
+        Notes copyNotes = Notes.builder()
+                .title(notes.getTitle())
+                .description(notes.getDescription())
+                .fileDetails(null)
+                .isDeleted(false)
+                          .build();
+        notesRepo.save(copyNotes);
     }
 
 }
