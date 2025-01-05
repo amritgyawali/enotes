@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -39,6 +40,6 @@ public class Notes extends BaseModel {
 
     private Boolean isDeleted;
 
-    private Date deletedOn;
+    private LocalDateTime deletedOn;
 
 }

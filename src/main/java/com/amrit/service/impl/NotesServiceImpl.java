@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -194,7 +196,7 @@ public class NotesServiceImpl implements NotesService {
     public void softDeleteNotes(Integer id) throws Exception {
         Notes notes = notesRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("notes not found of id:" + id));
         notes.setIsDeleted(true);
-        notes.setDeletedOn(new Date());
+        notes.setDeletedOn(LocalDateTime.now());
         notesRepo.save(notes);
     }
 
@@ -211,6 +213,28 @@ public class NotesServiceImpl implements NotesService {
         List<Notes> recycleNotes = notesRepo.findByCreatedByAndIsDeletedTrue(userId);
         List<NotesDto> notesDtoList = recycleNotes.stream().map(note -> mapper.map(note, NotesDto.class)).toList();
         return notesDtoList;
+    }
+
+    @Override
+    public void hardDeleteNotes(Integer id) throws Exception {
+        Notes notes = notesRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("id not found"));
+        if (notes.getIsDeleted()){
+            notesRepo.delete(notes);
+        }
+        else{
+            throw new IllegalArgumentException("first delete notes and then only hard delte");
+        }
+    }
+
+    @Override
+    public void deleteRecycleBin(int userId) {
+        List<Notes> recyclebinNotes = notesRepo.findByCreatedByAndIsDeletedTrue(userId);
+        if (!CollectionUtils.isEmpty(recyclebinNotes)){
+            notesRepo.deleteAll(recyclebinNotes);
+        }
+        else{
+            throw new IllegalArgumentException("recyclebin is empty");
+        }
     }
 
 }
