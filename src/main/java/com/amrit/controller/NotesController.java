@@ -2,10 +2,12 @@ package com.amrit.controller;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import com.amrit.dto.NotesResponse;
 import com.amrit.entity.FileDetails;
+import com.amrit.entity.Notes;
 import com.amrit.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -65,10 +67,44 @@ public class NotesController {
     ) {
         Integer userId = 2;
         NotesResponse notes = notesService.getAllNotesByUser(userId,pageNo,pageSize);
-//        if (CollectionUtils.isEmpty(notes)) {
-//            return ResponseEntity.noContent().build();
-//        }
+        if (CollectionUtils.isEmpty((Collection<?>) notes)) {
+            return ResponseEntity.noContent().build();
+        }
         return CommonUtil.createBuildResponse(notes, HttpStatus.OK);
     }
 
+    @GetMapping("/delete/{id}")
+    public ResponseEntity<?> deleteNotes(@PathVariable Integer id) throws Exception {
+        notesService.softDeleteNotes(id);
+        return CommonUtil.createBuildResponseMessage("deleted successfully",HttpStatus.OK);
+    }
+
+    @GetMapping("/restore/{id}")
+    public ResponseEntity<?> restoreNotes(@PathVariable Integer id) throws Exception {
+        notesService.restoreDeleteNotes(id);
+        return CommonUtil.createBuildResponseMessage("restored successfully",HttpStatus.OK);
+    }
+
+    @GetMapping("/recycle-bin")
+    public ResponseEntity<?> userRecycleBin() throws Exception {
+        Integer userId=2;
+        List<NotesDto> notes = notesService.getUserRecycleBinNotes(userId);
+        if(CollectionUtils.isEmpty(notes)){
+            return CommonUtil.createBuildResponseMessage("notes not available in recycle-bin",HttpStatus.OK);
+        }
+        return CommonUtil.createBuildResponse(notes,HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> hardDeleteNotes(@PathVariable Integer id) throws Exception {
+        notesService.hardDeleteNotes(id);
+        return CommonUtil.createBuildResponseMessage("deleted successfully",HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteRecycleBin() throws Exception {
+        int userId = 2;
+        notesService.deleteRecycleBin(userId);
+        return CommonUtil.createBuildResponseMessage("deleted all recyclebin successfully",HttpStatus.OK);
+    }
 }
