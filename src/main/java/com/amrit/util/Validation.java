@@ -1,6 +1,9 @@
 package com.amrit.util;
 
 import com.amrit.dto.CategoryDto;
+import com.amrit.dto.TodoDto;
+import com.amrit.enums.TodoStatus;
+import com.amrit.exception.ResourceNotFoundException;
 import com.amrit.exception.ValidationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -64,6 +67,19 @@ public class Validation {
         }
         if (!error.isEmpty()){
             throw new ValidationException(error);
+        }
+    }
+    public void todoValidation(TodoDto todo) throws Exception {
+        TodoDto.StatusDto reqStatus = todo.getStatus();
+
+        Boolean statusFound= false;
+        for(TodoStatus st : TodoStatus.values()){
+            if (st.getId().equals(reqStatus.getId())){
+                statusFound= true;
+            }
+        }
+        if (!statusFound){
+            throw new ResourceNotFoundException("valid status not found");
         }
     }
 }
