@@ -10,8 +10,8 @@ public class ValidationException extends RuntimeException {
 		this.error = error;
 	}
 
-	public Map<String, Object> getErrors() {
-		return error;
+	public String getErrors() {
+		return error.toString();
 	}
 
 }
