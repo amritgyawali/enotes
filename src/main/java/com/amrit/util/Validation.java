@@ -4,10 +4,13 @@ import com.amrit.dto.CategoryDto;
 import com.amrit.dto.TodoDto;
 import com.amrit.dto.UserDto;
 import com.amrit.entity.Role;
+import com.amrit.entity.User;
 import com.amrit.enums.TodoStatus;
+import com.amrit.exception.ExistDataException;
 import com.amrit.exception.ResourceNotFoundException;
 import com.amrit.exception.ValidationException;
 import com.amrit.repository.RoleRepository;
+import com.amrit.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -23,6 +26,9 @@ public class Validation {
 
     @Autowired
     private RoleRepository roleRepo;
+
+    @Autowired
+    private UserRepository userRepo;
 
     @Autowired
     private Constants constants;
@@ -108,6 +114,11 @@ public class Validation {
 
         if (!StringUtils.hasText(userDto.getEmail()) || !userDto.getEmail().matches(Constants.EMAIL_REGEX)) {
             throw new IllegalArgumentException("email is invalid");
+        }else {
+            Boolean existsByEmail =userRepo.existsByEmail(userDto.getEmail());
+            if (existsByEmail){
+                throw new ExistDataException("email already used");
+            }
         }
 
         if (!StringUtils.hasText(userDto.getMobno()) || !userDto.getMobno().matches(Constants.MOBILE_REGEX)) {

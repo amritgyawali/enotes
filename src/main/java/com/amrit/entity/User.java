@@ -26,6 +26,8 @@ public class User {
 
     private String mobno;
 
+    private String password;
+
     @OneToMany(cascade = CascadeType.ALL)
     private List<Role> roles;
 

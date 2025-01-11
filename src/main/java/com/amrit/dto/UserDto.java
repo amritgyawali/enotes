@@ -16,6 +16,7 @@ public class UserDto {
     private String lastName;
     private String email;
     private String mobno;
+    private String password;
     private List<RoleDto> roles;
 
     @AllArgsConstructor
