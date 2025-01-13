@@ -10,18 +10,20 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/user")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
     @Autowired
     private UserService userService;
 
     @PostMapping("/")
-    public ResponseEntity<?> saveUser(@RequestBody UserDto userDto){
-        Boolean userInfo = userService.register(userDto);
-        if (ObjectUtils.isEmpty(userInfo)){
-            return CommonUtil.createErrorResponseMessage("user is not saved", HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) throws Exception {
+        Boolean register = userService.register(userDto);
+        if (register) {
+            return CommonUtil.createBuildResponseMessage("Register success", HttpStatus.CREATED);
         }
-        return CommonUtil.createBuildResponseMessage("user saved successfully",HttpStatus.CREATED);
+        return CommonUtil.createErrorResponseMessage("Register failed", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }
+
