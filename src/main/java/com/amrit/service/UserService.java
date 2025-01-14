@@ -4,5 +4,7 @@ import com.amrit.dto.UserDto;
 import org.springframework.stereotype.Service;
 
 public interface UserService {
-    Boolean register(UserDto userDto);
+
+    public Boolean register(UserDto userDto) throws Exception;
+
 }
