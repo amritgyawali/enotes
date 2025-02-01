@@ -31,4 +31,8 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Role> roles;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "status_id")
+    private AccountStatus status;
+
 }
